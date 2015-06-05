@@ -84,6 +84,8 @@ test('it sets state before it reaches the end', assert => {
 
   assert.equal(31, route.get('_totalPages'));
   assert.equal(1, route.get('_currentPage'));
+  assert.equal(1, route.get('_topPageLoaded'));
+  assert.equal(1, route.get('_bottomPageLoaded'));
   assert.equal(true, route.get('_canLoadMore'));
   assert.ok(Ember.$.isEmptyObject(route.get('_extraParams')));
   assert.ok(!model.get('reachedInfinity'), 'Should not reach infinity');
@@ -187,6 +189,8 @@ test('it sets state  when it reaches the end', assert => {
 
   assert.equal(31, route.get('_totalPages'));
   assert.equal(31, route.get('_currentPage'));
+  assert.equal(31, route.get('_topPageLoaded'));
+  assert.equal(31, route.get('_bottomPageLoaded'));
   assert.ok(Ember.$.isEmptyObject(route.get('_extraParams')));
   assert.equal(false, route.get('_canLoadMore'));
   assert.ok(model.get('reachedInfinity'), 'Should reach infinity');
@@ -194,7 +198,7 @@ test('it sets state  when it reaches the end', assert => {
 
 test('it uses extra params when loading more data', assert => {
 
-  assert.expect(8);
+  assert.expect(10);
 
   var RouteObject = Ember.Route.extend(RouteMixin, {
     model() {
@@ -245,6 +249,7 @@ test('it uses extra params when loading more data', assert => {
   assert.equal('param', route.get('_extraParams.extra'));
   assert.equal(false, route.get('_canLoadMore'));
   assert.equal(2, route.get('_currentPage'));
+  assert.equal(1, route.get('_topPageLoaded'), "The top page loaded should have been 1 and was not");
+  assert.equal(2, route.get('_bottomPageLoaded'), "The bottom page loaded should have been 2 and was not");
   assert.ok(model.get('reachedInfinity'), 'Should reach infinity');
-
 });

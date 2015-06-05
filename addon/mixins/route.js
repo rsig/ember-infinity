@@ -30,6 +30,23 @@ export default Ember.Mixin.create({
 
   /**
     @private
+    @property _topPageLoaded
+    @type Integer
+    @default null
+  */
+  _topPageLoaded: null,
+
+  /**
+    @private
+    @property _bottomPageLoaded
+    @type Integer
+    @default null
+  */
+  _bottomPageLoaded: null,
+
+
+  /**
+    @private
     @property _extraParams
     @type Object
     @default {}
@@ -146,7 +163,7 @@ export default Ember.Mixin.create({
     promise.then(
       infinityModel => {
         var totalPages = infinityModel.get(this.get('totalPagesParam'));
-        this.set('_currentPage', startingPage);
+        this._setPageMarkers(startingPage);
         this.set('_totalPages', totalPages);
         infinityModel.set('reachedInfinity', !this.get('_canLoadMore'));
         Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
@@ -161,6 +178,21 @@ export default Ember.Mixin.create({
     );
 
     return promise;
+  },
+
+  _setPageMarkers(page) {
+    let topPageLoaded    = this.get('_topPageLoaded');
+    let bottomPageLoaded = this.get('_bottomPageLoaded');
+
+    this.set('_currentPage', page);
+
+    if(!!!topPageLoaded || page < topPageLoaded) {
+      this.set('_topPageLoaded', page);
+    }
+
+    if(!!!bottomPageLoaded || page > bottomPageLoaded) {
+      this.set('_bottomPageLoaded', page);
+    }
   },
 
   /**
@@ -186,7 +218,7 @@ export default Ember.Mixin.create({
         infinityModel => {
           model.pushObjects(infinityModel.get('content'));
           this.set('_loadingMore', false);
-          this.set('_currentPage', nextPage);
+          this._setPageMarkers(nextPage);
           Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
             lastPageLoaded: nextPage,
             totalPages: totalPages,
@@ -213,7 +245,16 @@ export default Ember.Mixin.create({
     return false;
   },
 
+  _infinityLoadUp() {
+    // DO THE SAME AS INFINITY LOAD BUT UP
+    console.log("ship pants");
+  },
+
   actions: {
+    infinityloadUp() {
+      this._infinityLoadUp();
+    },
+
     infinityLoad() {
       this._infinityLoad();
     }
