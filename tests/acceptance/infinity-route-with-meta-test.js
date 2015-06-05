@@ -62,7 +62,7 @@ test('it works when meta is present in payload', assert => {
 });
 
 test('it works with parameters', assert => {
-  visit('/category/a?per_page=2');
+  visit('/category/a?perPage=2');
 
   andThen(() => {
     var postsTitle     = find('#posts-title');
@@ -78,7 +78,7 @@ test('it works with parameters', assert => {
 
 test('it loads more results after scrolling to the bottom', function(assert) {
   $('#ember-testing').css({ zoom: "100%" });
-  visit('/category/a?per_page=2');
+  visit('/category/a?perPage=2');
 
   andThen(() => {
     var postsTitle     = find('#posts-title');
@@ -91,7 +91,32 @@ test('it loads more results after scrolling to the bottom', function(assert) {
 
     $("#ember-testing-container").scrollTop($("#ember-testing").height());
   });
-  
+
+  andThen(() => {
+    var postList       = find('ul');
+    var infinityLoader = find('.infinity-loader');
+
+    assert.equal(postList.find('li').length, 3);
+    assert.equal(infinityLoader.hasClass('reached-infinity'), true);
+  });
+});
+
+test('it loads more results after scrolling to the top', function(assert) {
+  $('#ember-testing').css({ zoom: "100%" });
+  visit('/category/a?perPage=2&page=2');
+
+  andThen(() => {
+    var postsTitle     = find('#posts-title');
+    var postList       = find('ul');
+    var infinityLoader = find('.infinity-loader');
+
+    assert.equal(postsTitle.text(), "Listing Posts using Parameters");
+    assert.equal(postList.find('li').length, 1);
+    assert.equal(infinityLoader.hasClass('reached-infinity'), false);
+
+    $("#ember-testing-container").scrollTop(0);
+  });
+
   andThen(() => {
     var postList       = find('ul');
     var infinityLoader = find('.infinity-loader');
