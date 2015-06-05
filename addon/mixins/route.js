@@ -207,7 +207,6 @@ export default Ember.Mixin.create({
     var totalPages  = this.get('_totalPages');
     var model       = this.get(this.get('_modelPath'));
     var modelName   = this.get('_infinityModelName');
-
     if (!this.get('_loadingMore') && this.get('_canLoadMore')) {
       this.set('_loadingMore', true);
 
