@@ -14,6 +14,11 @@ function generateFakeData(qty) {
 
 
 export default Ember.Route.extend(InfinityRoute, {
+  queryParams: {
+    perPage: {},
+    page:    {}
+  },
+
   init: function () {
     this._super(...arguments);
     var fakeData = generateFakeData(104);
@@ -38,7 +43,11 @@ export default Ember.Route.extend(InfinityRoute, {
     this.set('pretender', undefined);
   }),
 
-  model() {
-    return this.infinityModel('post');
+  model(params) {
+    return this.infinityModel('post', {
+      category:     params.category,
+      perPage:      params.perPage,
+      startingPage: params.page
+    });
   }
 });

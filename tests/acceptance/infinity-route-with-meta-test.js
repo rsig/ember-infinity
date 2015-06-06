@@ -3,7 +3,7 @@ import { module, test } from 'qunit';
 import startApp from '../helpers/start-app';
 import Pretender from 'pretender';
 
-var App, server;
+var App, server, zoom;
 
 var posts = [
   { id: 1, name: "Squarepusher", category: "a" },
@@ -17,6 +17,9 @@ var posts = [
 module('Acceptance: Infinity Route', {
   setup() {
     App = startApp();
+
+    $('#ember-testing').css({ zoom: "100%" });
+
     server = new Pretender(function() {
       this.get('/posts', function(request) {
         var body, subset, perPage, startPage, offset;
@@ -35,13 +38,14 @@ module('Acceptance: Infinity Route', {
         offset = perPage * (startPage - 1);
         subset = subset.slice(offset, offset + perPage);
 
-        body = { posts: subset, meta: { total_pages: pageCount } };
+        body = { posts: subset, meta: { total_pages: pageCount, page: offset } };
 
         return [200, {"Content-Type": "application/json"}, JSON.stringify(body)];
       });
     });
   },
   teardown() {
+    // TODO restore zoom
     Ember.run(App, 'destroy');
     server.shutdown();
   }
@@ -77,7 +81,10 @@ test('it works with parameters', assert => {
 });
 
 test('it loads more results after scrolling to the bottom', function(assert) {
-  $('#ember-testing').css({ zoom: "100%" });
+  var done1 = assert.async();
+  var done2 = assert.async();
+  var self  = this;
+
   visit('/category/a?perPage=2');
 
   andThen(() => {
@@ -89,19 +96,25 @@ test('it loads more results after scrolling to the bottom', function(assert) {
     assert.equal(postList.find('li').length, 2);
     assert.equal(infinityLoader.hasClass('reached-infinity'), false);
 
-    $("#ember-testing-container").scrollTop($("#ember-testing").height());
+    $("#ember-testing-container").animate({ scrollTop: $("#ember-testing").height() }, 500, done1);
   });
 
-  andThen(() => {
+  setTimeout(function() {
     var postList       = find('ul');
     var infinityLoader = find('.infinity-loader');
 
     assert.equal(postList.find('li').length, 3);
     assert.equal(infinityLoader.hasClass('reached-infinity'), true);
-  });
+    done2();
+  }, 1000);
 });
 
 test('it loads more results after scrolling to the top', function(assert) {
+  var done1 = assert.async();
+  var done2 = assert.async();
+  var done3 = assert.async();
+  var self  = this;
+
   $('#ember-testing').css({ zoom: "100%" });
   visit('/category/a?perPage=2&page=2');
 
@@ -109,19 +122,25 @@ test('it loads more results after scrolling to the top', function(assert) {
     var postsTitle     = find('#posts-title');
     var postList       = find('ul');
     var infinityLoader = find('.infinity-loader');
+    var topLi          = postList.find('li:first-child');
 
+    assert.equal(topLi.text(), "Alroy Road Tracks");
     assert.equal(postsTitle.text(), "Listing Posts using Parameters");
     assert.equal(postList.find('li').length, 1);
-    assert.equal(infinityLoader.hasClass('reached-infinity'), false);
 
-    $("#ember-testing-container").scrollTop(0);
+    $("#ember-testing-container").animate({ scrollTop: 50 }, 500, done1);
+    $("#ember-testing-container").animate({ scrollTop: 0 },  500, done2);
   });
 
-  andThen(() => {
+
+  setTimeout(function() {
     var postList       = find('ul');
     var infinityLoader = find('.infinity-loader');
+    var topLi          = postList.find('li:first-child');
 
     assert.equal(postList.find('li').length, 3);
     assert.equal(infinityLoader.hasClass('reached-infinity'), true);
-  });
+    assert.equal(topLi.text(), "Squarepusher");
+    done3();
+  }, 1000);
 });

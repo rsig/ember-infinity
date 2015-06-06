@@ -9,9 +9,9 @@ export default Ember.Route.extend(InfinityRoute, {
 
   model(params) {
     return this.infinityModel('post', {
-      category: params.category,
-      perPage:  params.perPage,
-      page:     params.page
+      category:     params.category,
+      perPage:      params.perPage,
+      startingPage: params.page
     });
   }
 });
