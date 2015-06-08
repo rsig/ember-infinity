@@ -260,7 +260,8 @@ export default Ember.Mixin.create({
   },
 
   _infinityLoadUp() {
-    var previousPage  = this.get('_topPageLoaded') - 1;
+    var currentPage   = this.get('_topPageLoaded') || 0;
+    var previousPage  = currentPage - 1;
     var perPage       = this.get('_perPage');
     var totalPages    = this.get('_totalPages');
     var model         = this.get(this.get('_modelPath'));
@@ -277,7 +278,7 @@ export default Ember.Mixin.create({
           model.unshiftObjects(infinityModel.get('content'));
           this.set('_loadingMore', false);
           this._setPageMarkers(previousPage);
-          this.didInfinityLoadPrevious();
+          this.didInfinityLoadPrevious(currentPage);
           Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
             lastPageLoaded: previousPage,
             totalPages: totalPages,
