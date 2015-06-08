@@ -115,10 +115,10 @@ export default Ember.Mixin.create({
     @type Boolean
     @default false
   */
-  _canLoadMore: Ember.computed('_totalPages', '_currentPage', function() {
+  _canLoadMore: Ember.computed('_totalPages', '_bottomPageLoaded', function() {
     var totalPages  = this.get('_totalPages');
-    var currentPage = this.get('_currentPage');
-    return (totalPages && currentPage) ? (currentPage < totalPages) : false;
+    var bottomPage = this.get('_bottomPageLoaded');
+    return (totalPages && bottomPage) ? (bottomPage < totalPages) : false;
   }),
 
   /**
@@ -214,7 +214,7 @@ export default Ember.Mixin.create({
    @return {Boolean}
    */
   _infinityLoad() {
-    var nextPage    = this.get('_currentPage') + 1;
+    var nextPage    = this.get('_bottomPageLoaded') + 1;
     var perPage     = this.get('_perPage');
     var totalPages  = this.get('_totalPages');
     var model       = this.get(this.get('_modelPath'));
@@ -257,11 +257,11 @@ export default Ember.Mixin.create({
   },
 
   _infinityLoadUp() {
-    var previousPage = this.get('_currentPage') - 1;
-    var perPage      = this.get('_perPage');
-    var totalPages   = this.get('_totalPages');
-    var model        = this.get(this.get('_modelPath'));
-    var modelName    = this.get('_infinityModelName');
+    var previousPage  = this.get('_topPageLoaded') - 1;
+    var perPage       = this.get('_perPage');
+    var totalPages    = this.get('_totalPages');
+    var model         = this.get(this.get('_modelPath'));
+    var modelName     = this.get('_infinityModelName');
 
     if (!this.get('_loadingMore') && this.get('_canLoadMoreUp')) {
       this.set('_loadingMore', true);
