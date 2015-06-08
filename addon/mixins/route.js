@@ -176,6 +176,7 @@ export default Ember.Mixin.create({
       infinityModel => {
         var totalPages = infinityModel.get(this.get('totalPagesParam'));
         this._setPageMarkers(startingPage);
+        this.didInfinityLoadNext(startingPage);
         this.set('_totalPages', totalPages);
         infinityModel.set('reachedInfinity', !this.get('_canLoadMore'));
         Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
@@ -214,7 +215,8 @@ export default Ember.Mixin.create({
    @return {Boolean}
    */
   _infinityLoad() {
-    var nextPage    = this.get('_bottomPageLoaded') + 1;
+    var currentPage = this.get('_bottomPageLoaded')
+    var nextPage    = currentPage + 1;
     var perPage     = this.get('_perPage');
     var totalPages  = this.get('_totalPages');
     var model       = this.get(this.get('_modelPath'));
@@ -230,6 +232,7 @@ export default Ember.Mixin.create({
           model.pushObjects(infinityModel.get('content'));
           this.set('_loadingMore', false);
           this._setPageMarkers(nextPage);
+          this.didInfinityLoadNext(currentPage);
           Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
             lastPageLoaded: nextPage,
             totalPages: totalPages,
@@ -274,6 +277,7 @@ export default Ember.Mixin.create({
           model.unshiftObjects(infinityModel.get('content'));
           this.set('_loadingMore', false);
           this._setPageMarkers(previousPage);
+          this.didInfinityLoadPrevious();
           Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
             lastPageLoaded: previousPage,
             totalPages: totalPages,
@@ -288,6 +292,21 @@ export default Ember.Mixin.create({
     }
     return false;
   },
+
+  _resetState() {
+    this.set('_topPageLoaded', null);
+    this.set('_bottomPageLoaded', null);
+    this.set('_currentPage', 0);
+    this.set('_totalPages', null);
+  },
+
+  resetState: function(){
+    this._resetState();
+  }.on('deactivate'),
+
+  didInfinityLoadNext: function() {},
+
+  didInfinityLoadPrevious: function() {},
 
   actions: {
     infinityLoadUp() {

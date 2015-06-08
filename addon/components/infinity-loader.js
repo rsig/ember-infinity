@@ -22,6 +22,7 @@ export default Ember.Component.extend({
     this.set('guid', Ember.guidFor(this));
     this._bindScroll();
     this._checkIfBottomInView();
+    console.log(this.get("scrollable"))
   },
 
   willDestroyElement() {
@@ -40,14 +41,13 @@ export default Ember.Component.extend({
   },
 
   _checkIfInView() {
-    if(!this._checkIfBottomInView()) {
-      this._checkIfTopInView();
-    }
+    this._checkIfBottomInView();
+    this._checkIfTopInView();
   },
 
   _checkIfTopInView() {
     var scrollable = this.get("scrollable");
-    var inView     = scrollable.scrollTop() <= this.get("topScrollOffset");
+    var inView     = scrollable.scrollTop() <= 0 //<= this.get("topScrollOffset");
 
     if(inView && !this.get('developmentMode')) {
       this.sendAction('loadMoreUpAction');
