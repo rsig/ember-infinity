@@ -123,11 +123,11 @@ export default Ember.Mixin.create({
 
   /**
     @private
-    @property _canLoadMoreUp
+    @property _canLoadPrevious
     @type Boolean
     @default false
   */
-  _canLoadMoreUp: Ember.computed('_topPageLoaded', function() {
+  _canLoadPrevious: Ember.computed('_topPageLoaded', function() {
     var topPageLoaded = this.get('_topPageLoaded');
     return topPageLoaded ? (topPageLoaded > 1) : false;
   }),
@@ -259,7 +259,7 @@ export default Ember.Mixin.create({
     return false;
   },
 
-  _infinityLoadUp() {
+  _infinityLoadPrevious() {
     var currentPage   = this.get('_topPageLoaded') || 0;
     var previousPage  = currentPage - 1;
     var perPage       = this.get('_perPage');
@@ -267,7 +267,7 @@ export default Ember.Mixin.create({
     var model         = this.get(this.get('_modelPath'));
     var modelName     = this.get('_infinityModelName');
 
-    if (!this.get('_loadingMore') && this.get('_canLoadMoreUp')) {
+    if (!this.get('_loadingMore') && this.get('_canLoadPrevious')) {
       this.set('_loadingMore', true);
 
       var params = Ember.merge({ page: previousPage, per_page: perPage }, this.get('_extraParams'));
@@ -305,13 +305,12 @@ export default Ember.Mixin.create({
     this._resetState();
   }.on('deactivate'),
 
-  didInfinityLoadNext: function() {},
-
+  didInfinityLoadNext:     function() {},
   didInfinityLoadPrevious: function() {},
 
   actions: {
-    infinityLoadUp() {
-      this._infinityLoadUp();
+    infinityLoadPrevious() {
+      this._infinityLoadPrevious();
     },
 
     infinityLoad() {

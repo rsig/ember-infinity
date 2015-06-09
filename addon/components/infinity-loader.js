@@ -7,7 +7,7 @@ export default Ember.Component.extend({
   classNameBindings: ["infinityModel.reachedInfinity"],
   guid: null,
   scrollDebounce: 10,
-  loadMoreUpAction: 'infinityLoadUp',
+  loadPerviousAction: 'infinityLoadPrevious',
   loadMoreAction: 'infinityLoad',
   loadingText: 'Loading Infinite Model...',
   loadedText: 'Infinite Model Entirely Loaded.',
@@ -22,7 +22,6 @@ export default Ember.Component.extend({
     this.set('guid', Ember.guidFor(this));
     this._bindScroll();
     this._checkIfBottomInView();
-    console.log(this.get("scrollable"))
   },
 
   willDestroyElement() {
@@ -41,8 +40,9 @@ export default Ember.Component.extend({
   },
 
   _checkIfInView() {
-    this._checkIfBottomInView();
-    this._checkIfTopInView();
+    if(!this._checkIfTopInView()) {
+      this._checkIfBottomInView();
+    }
   },
 
   _checkIfTopInView() {
@@ -50,7 +50,7 @@ export default Ember.Component.extend({
     var inView     = scrollable.scrollTop() <= 0 //<= this.get("topScrollOffset");
 
     if(inView && !this.get('developmentMode')) {
-      this.sendAction('loadMoreUpAction');
+      this.sendAction('loadPerviousAction');
       return true;
     }
     return false;
