@@ -7,7 +7,7 @@ export default Ember.Component.extend({
   classNameBindings: ["infinityModel.reachedInfinity"],
   guid: null,
   scrollDebounce: 10,
-  loadPerviousAction: 'infinityLoadPrevious',
+  loadPreviousAction: 'infinityLoadPrevious',
   loadMoreAction: 'infinityLoad',
   loadingText: 'Loading Infinite Model...',
   loadedText: 'Infinite Model Entirely Loaded.',
@@ -31,7 +31,7 @@ export default Ember.Component.extend({
 
   _bindScroll() {
     this.get("scrollable").on(`scroll.${this.get('guid')}`, () => {
-      Ember.run.debounce(this, this._checkIfInView, this.get('scrollDebounce'));
+      Ember.run.throttle(this, this._checkIfInView, this.get('scrollDebounce'));
     });
   },
 
@@ -50,7 +50,7 @@ export default Ember.Component.extend({
     var inView     = scrollable.scrollTop() <= 0 //<= this.get("topScrollOffset");
 
     if(inView && !this.get('developmentMode')) {
-      this.sendAction('loadPerviousAction');
+      this.sendAction('loadPreviousAction');
       return true;
     }
     return false;
@@ -62,6 +62,11 @@ export default Ember.Component.extend({
     var scrollableBottom = scrollable.height() + scrollable.scrollTop();
 
     var inView = selfOffset < scrollableBottom;
+
+    console.log("scrollable height", scrollable.height());
+    console.log("scrollTop", scrollable.scrollTop());
+    console.log("offset", selfOffset);
+    console.log("scrollableBottom", scrollableBottom);
 
     if (inView && !this.get('developmentMode')) {
       this.sendAction('loadMoreAction');
