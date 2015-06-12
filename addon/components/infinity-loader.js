@@ -15,13 +15,13 @@ export default Ember.Component.extend({
   developmentMode: false,
   scrollable: null,
   topScrollOffset: 30,
+  bindScrollDelay: 0,
 
   didInsertElement() {
     this._super(...arguments);
     this._setupScrollable();
     this.set('guid', Ember.guidFor(this));
-    this._bindScroll();
-    this._checkIfBottomInView();
+    Ember.run.later(this, this._bindScroll, this.get('bindScrollDelay'));
   },
 
   willDestroyElement() {
@@ -31,7 +31,7 @@ export default Ember.Component.extend({
 
   _bindScroll() {
     this.get("scrollable").on(`scroll.${this.get('guid')}`, () => {
-      Ember.run.throttle(this, this._checkIfInView, this.get('scrollDebounce'));
+      Ember.run.debounce(this, this._checkIfInView, this.get('scrollDebounce'));
     });
   },
 
@@ -47,7 +47,7 @@ export default Ember.Component.extend({
 
   _checkIfTopInView() {
     var scrollable = this.get("scrollable");
-    var inView     = scrollable.scrollTop() <= 0 //<= this.get("topScrollOffset");
+    var inView     = scrollable.scrollTop() <= 0;
 
     if(inView && !this.get('developmentMode')) {
       this.sendAction('loadPreviousAction');
@@ -62,11 +62,6 @@ export default Ember.Component.extend({
     var scrollableBottom = scrollable.height() + scrollable.scrollTop();
 
     var inView = selfOffset < scrollableBottom;
-
-    console.log("scrollable height", scrollable.height());
-    console.log("scrollTop", scrollable.scrollTop());
-    console.log("offset", selfOffset);
-    console.log("scrollableBottom", scrollableBottom);
 
     if (inView && !this.get('developmentMode')) {
       this.sendAction('loadMoreAction');

@@ -43,8 +43,6 @@ export default Ember.Mixin.create({
     @default null
   */
   _bottomPageLoaded: null,
-
-
   /**
     @private
     @property _extraParams
@@ -118,6 +116,7 @@ export default Ember.Mixin.create({
   _canLoadMore: Ember.computed('_totalPages', '_bottomPageLoaded', function() {
     var totalPages  = this.get('_totalPages');
     var bottomPage = this.get('_bottomPageLoaded');
+    console.log("total pages:", totalPages, "bottom page:", bottomPage);
     return (totalPages && bottomPage) ? (bottomPage < totalPages) : false;
   }),
 
@@ -129,6 +128,7 @@ export default Ember.Mixin.create({
   */
   _canLoadPrevious: Ember.computed('_topPageLoaded', function() {
     var topPageLoaded = this.get('_topPageLoaded');
+    console.log("top page loaded:", topPageLoaded);
     return topPageLoaded ? (topPageLoaded > 1) : false;
   }),
 
@@ -179,11 +179,6 @@ export default Ember.Mixin.create({
         this.didInfinityLoadNext(startingPage);
         this.set('_totalPages', totalPages);
         infinityModel.set('reachedInfinity', !this.get('_canLoadMore'));
-        Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
-          lastPageLoaded: startingPage,
-          totalPages: totalPages,
-          newObjects: infinityModel
-        });
       },
       () => {
         throw new Ember.Error("Could not fetch Infinity Model. Please check your serverside configuration.");
@@ -215,7 +210,7 @@ export default Ember.Mixin.create({
    @return {Boolean}
    */
   _infinityLoad() {
-    var currentPage = this.get('_bottomPageLoaded')
+    var currentPage = this.get('_bottomPageLoaded');
     var nextPage    = currentPage + 1;
     var perPage     = this.get('_perPage');
     var totalPages  = this.get('_totalPages');
@@ -233,11 +228,7 @@ export default Ember.Mixin.create({
           this.set('_loadingMore', false);
           this._setPageMarkers(nextPage);
           this.didInfinityLoadNext(nextPage);
-          Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
-            lastPageLoaded: nextPage,
-            totalPages: totalPages,
-            newObjects: infinityModel
-          });
+
           if (!this.get('_canLoadMore')) {
             this.set(this.get('_modelPath') + '.reachedInfinity', true);
             Ember.run.scheduleOnce('afterRender', this, 'infinityModelLoaded', {
@@ -263,7 +254,6 @@ export default Ember.Mixin.create({
     var currentPage   = this.get('_topPageLoaded') || 0;
     var previousPage  = currentPage - 1;
     var perPage       = this.get('_perPage');
-    var totalPages    = this.get('_totalPages');
     var model         = this.get(this.get('_modelPath'));
     var modelName     = this.get('_infinityModelName');
 
@@ -279,11 +269,6 @@ export default Ember.Mixin.create({
           this.set('_loadingMore', false);
           this._setPageMarkers(previousPage);
           this.didInfinityLoadPrevious(previousPage);
-          Ember.run.scheduleOnce('afterRender', this, 'infinityModelUpdated', {
-            lastPageLoaded: previousPage,
-            totalPages: totalPages,
-            newObjects: infinityModel
-          });
         },
         () => {
           this.set('_loadingMore', false);
