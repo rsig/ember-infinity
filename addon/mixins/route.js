@@ -116,7 +116,6 @@ export default Ember.Mixin.create({
   _canLoadMore: Ember.computed('_totalPages', '_bottomPageLoaded', function() {
     var totalPages  = this.get('_totalPages');
     var bottomPage = this.get('_bottomPageLoaded');
-    console.log("total pages:", totalPages, "bottom page:", bottomPage);
     return (totalPages && bottomPage) ? (bottomPage < totalPages) : false;
   }),
 
@@ -128,7 +127,6 @@ export default Ember.Mixin.create({
   */
   _canLoadPrevious: Ember.computed('_topPageLoaded', function() {
     var topPageLoaded = this.get('_topPageLoaded');
-    console.log("top page loaded:", topPageLoaded);
     return topPageLoaded ? (topPageLoaded > 1) : false;
   }),
 
