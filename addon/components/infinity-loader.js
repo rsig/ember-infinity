@@ -36,7 +36,9 @@ export default Ember.Component.extend({
   },
 
   _unbindScroll() {
-    this.get("scrollable").off(`scroll.${this.get('guid')}`);
+    if(this.get("scrollable")) {
+      this.get("scrollable").off(`scroll.${this.get('guid')}`);
+    }
   },
 
   _checkIfInView() {
